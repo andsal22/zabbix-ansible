@@ -28,3 +28,4 @@
       win_service:
         name: "Zabbix Agent"
         state: restarted
+
