@@ -14,7 +14,7 @@
       win_package:
         path: C:\Temp\zabbix_agent.msi
         product_id: "{4C3B24FA-4F7A-4A06-AC7D-1C772EBE7A5C}"
-        arguments: '/qn Server={{ 185.174.168.26 }} ServerPort={{ 10050 }}'
+        arguments: '/qn Server={{ zabbix_server_ip }} ServerPort={{ 10050 }}'
 
     - name: Configure Zabbix agent
       win_template:
@@ -23,7 +23,7 @@
       notify: restart zabbix agent service
 
   handlers:
-    - name: restart zabbix agent service
+    - name: restart Zabbix agent
       win_service:
         name: "Zabbix Agent"
         state: restarted
