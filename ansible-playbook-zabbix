@@ -14,7 +14,7 @@
       win_package:
         path: C:\Temp\zabbix_agent.msi
         product_id: "{4C3B24FA-4F7A-4A06-AC7D-1C772EBE7A5C}"
-        arguments: '/qn Server={{ zabbix_server_ip }} ServerPort={{ 10050 }}'
+        arguments: '/qn Server={{ zabbix_server_ip }} ServerPort={{ zabbix_server_port }}'
 
     - name: Configure Zabbix agent
       win_template:
