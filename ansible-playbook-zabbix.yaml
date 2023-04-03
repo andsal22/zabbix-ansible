@@ -1,3 +1,4 @@
+---
 - name: Install and configure agent
   hosts: windows_servers
   vars:
