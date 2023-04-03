@@ -2,19 +2,19 @@
 - name: Install and configure agent
   hosts: win_host
   vars:
+    zabbix_short_version: "6.0"
     zabbix_agent_version: "6.0.15"
     zabbix_server_ip: "185.174.168.26"
     zabbix_server_port: "10050"
   tasks:
     - name: Download Zabbix agent
       win_get_url:
-        url: "https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/windows/zabbix_agent-{{ zabbix_agent_version }}-win-amd64-openssl.msi"
-        dest: C:\Temp\zabbix_agent.msi
+        url: "https://cdn.zabbix.com/zabbix/binaries/stable/{{ zabbix_short_version }}/{{ zabbix_agent_version }}/zabbix_agent-{{ zabbix_agent_version }}-windows-amd64-openssl.msi"
+        dest: C:\Users\Public\Downloads\zab_ag_install.msi
 
     - name: Install Zabbix agent
       win_package:
-        path: C:\Temp\zabbix_agent.msi
-        product_id: "{4C3B24FA-4F7A-4A06-AC7D-1C772EBE7A5C}"
+        path: C:\Users\Public\Downloads\zab_ag_install.msi
         arguments: '/qn Server={{ zabbix_server_ip }} ServerPort={{ zabbix_server_port }}'
 
     - name: Configure Zabbix agent
