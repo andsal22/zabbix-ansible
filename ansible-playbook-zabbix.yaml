@@ -21,11 +21,17 @@
       win_template:
         src: zabbix_agentd.conf.j2
         dest: C:\Program Files\Zabbix Agent\zabbix_agentd.conf
-      notify: restart zabbix agent service
+      register: conf_changed
 
-  handlers:
-    - name: restart Zabbix agent
-      win_service:
-        name: "Zabbix Agent"
-        state: restarted
+#   Los comandos de abajo por algun motivo desconocido hacen que todo explote, y no parece que necesite
+#   forzosamente reiniciar el servicio. Antes de tocar haz una backup
 
+#===================================================================================================================================
+
+#  - name: Restart Windows computer
+#    win_reboot:
+#      when: conf_changed.changed
+
+#  - name: Service reboot try 2
+#    ansible.windows.win_command: net stop "Zabbix Agent" && net start "Zabbix Agent"
+#      register: lol
