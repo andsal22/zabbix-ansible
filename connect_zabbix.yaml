@@ -1,0 +1,56 @@
+---
+- name: Register Zabbix agent on Zabbix server
+  hosts: win_host
+  vars:
+    zabbix_server: 185.174.168.26
+    zabbix_server_port: 10050
+    zabbix_agent_hostname: dc1
+    zabbix_agent_server_active: 185.174.168.10
+  tasks:
+    - name: Register Zabbix agent on Zabbix server
+      shell: zabbix_agentd -t agent.ping
+      ignore_errors: yes
+      register: ping_result
+      changed_when: false
+    - name: Create Zabbix host
+      zabbix_host:
+        server_url: "http://{{ zabbix_server }}:{{ zabbix_server_port }}/api_jsonrpc.php"
+        login_user: Admin
+        login_password: zabbix
+        host_name: "{{ zabbix_agent_hostname }}"
+        interfaces:
+          - type: 1
+            main: 1
+            ip: "{{ ansible_default_ipv4.address }}"
+            port: 10050
+        groups:
+          - groupname: "Linux servers"
+        state: present
+      notify:
+        - restart zabbix agent
+    - name: Get Zabbix host ID
+      zabbix_host:
+        server_url: "http://{{ zabbix_server }}:{{ zabbix_server_port }}/api_jsonrpc.php"
+        login_user: Admin
+        login_password: zabbix
+        host_name: "{{ zabbix_agent_hostname }}"
+        state: get_id
+      register: host_id
+      changed_when: false
+    - name: Register Zabbix agent on Zabbix server
+      zabbix_host:
+        server_url: "http://{{ zabbix_server }}:{{ zabbix_server_port }}/api_jsonrpc.php"
+        login_user: Admin
+        login_password: zabbix
+        host_id: "{{ host_id.hostid }}"
+        macros:
+          - macro: "{$ZABBIX_SERVER}"
+            value: "{{ zabbix_agent_server_active }}"
+        state: present
+      notify:
+        - restart zabbix agent
+  handlers:
+    - name: restart zabbix agent
+      service:
+        name: zabbix-agent
+        state: restarted
