@@ -2,17 +2,21 @@
 - name: Add Zabbix host
   hosts: zabbix_server
   vars:
+  # Changing this variables should be enough for the playbook to work :)
     zabbix_host_ip: "185.174.168.10"
     zabbix_api_url: "http://185.174.168.26/zabbix/api_jsonrpc.php"
     zabbix_user: "admin"
     zabbix_password: "zabbix"
+    zabbix_group_name: "Patata"
+    zabbix_host_name: "Platano"
+    zabbix_port: "10050"
   tasks:
     - name: Create Zabbix host group
       zabbix_host_group:
         server_url: "{{ zabbix_api_url }}"
         login_user: "{{ zabbix_user }}"
         login_password: "{{ zabbix_password }}"
-        name: "Patata"
+        name: "{{ zabbix_group_name }}"
         state: present
 
     - name: Add Zabbix host
@@ -20,9 +24,9 @@
         server_url: "{{ zabbix_api_url }}"
         login_user: "{{ zabbix_user }}"
         login_password: "{{ zabbix_password }}"
-        name: "Platano"
+        name: "{{ zabbix_host_name }}"
         interface_ip: "{{ zabbix_host_ip }}"
-        interface_port: 10050
+        interface_port: "{{ zabbix_port }}"
         groups:
-          - "Patata"
+          - "{{ zabbix_group_name }}"
         state: present
