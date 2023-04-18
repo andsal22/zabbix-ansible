@@ -1,0 +1,71 @@
+---
+- name: Install and configure agent
+  hosts: win_host
+  vars:
+  #=============================================================#
+  # You have to modify this variables and ALSO! the ones bellow #
+  #=============================================================#
+    zabbix_short_version: "6.0"
+    zabbix_agent_version: "6.0.15"
+    zabbix_server_ip: "185.174.168.26"
+    zabbix_server_port: "10050"
+  tasks:
+    - name: Download Zabbix agent
+      win_get_url:
+        url: "https://cdn.zabbix.com/zabbix/binaries/stable/{{ zabbix_short_version }}/{{ zabbix_agent_version }}/zabbix_agent-{{ zabbix_agent_version }}-windows-amd64-openssl.msi"
+        dest: C:\Users\Public\Downloads\zab_ag_install.msi
+
+    - name: Install Zabbix agent
+      win_package:
+        path: C:\Users\Public\Downloads\zab_ag_install.msi
+        arguments: '/qn Server={{ zabbix_server_ip }} ServerPort={{ zabbix_server_port }}'
+
+    - name: Configure Zabbix agent
+      win_template:
+        src: zabbix_agentd.conf.j2
+        dest: C:\Program Files\Zabbix Agent\zabbix_agentd.conf
+      register: conf_changed
+
+- name: Add Zabbix host
+  hosts: zabbix_server
+  vars:
+  #==============================#
+  # This are the other variables #
+  #==============================#
+    zabbix_host_ip: "185.174.168.10"
+    zabbix_api_url: "http://185.174.168.26/zabbix/api_jsonrpc.php"
+    zabbix_server_url: "http://185.174.168.26/zabbix"
+    zabbix_user: "test"
+    zabbix_password: "Tolosa22"
+    zabbix_group_name: "Patata"
+    zabbix_host_name: "Platano"
+    zabbix_port: "10050"
+  tasks:
+    - name: Create host groups
+      community.zabbix.zabbix_group:
+        server_url: "{{ zabbix_api_url }}"
+        login_user: "{{ zabbix_user }}"
+        login_password: "{{ zabbix_password }}"
+        state: present
+        host_groups:
+          - "{{ zabbix_group_name }}"
+
+
+
+    - name: Add Zabbix host
+      zabbix_host:
+        server_url: "{{ zabbix_api_url }}"
+        login_user: "{{ zabbix_user }}"
+        login_password: "{{ zabbix_password }}"
+        host_name: "{{ zabbix_host_name }}"
+        interfaces:
+          - type: "agent"
+            main: 1
+            useip: 1
+            ip: "{{ zabbix_host_ip }}"
+            port: "{{ zabbix_port }}"
+        host_groups:
+        - "{{ zabbix_group_name }}"
+        state: present
+        link_templates:
+          - Windows by Zabbix agent
